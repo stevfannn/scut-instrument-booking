@@ -46,24 +46,30 @@ async def get_booklist(eid: str, mm: str, dd: str):
         tree = etree.HTML(response)
         bname = tree.xpath('//div[@class="area4"]/table/tr[2]/td[3]/text()')[0]
         bname_list.append(bname)
-    output_str = '2020年{}月{}日电镜（每个时间段15分钟，只记录时间段的起始时间）：'.format(mm, dd)
+    output_str = '2020年{}月{}日所查设备的预约情况：'.format(mm, dd)
 
-    book_section = book_seperator(book_time_list, bname_list)
+    book_section = book_separator(book_time_list, bname_list)
+    output_str = output_formattor(output_str, book_section)
+    return output_str
+
+
+def output_formattor(output_str, book_section):
     if len(book_section) > 0:
         book_time_list = []
         bname_list = []
-        for b_s in book_section:
-            book_time_list.append('{time_start} - {time_end}'.format(**b_s))
-            bname_list.append(b_s['name'])
-        output_str += '\n非空时间段：' + str(book_time_list)
-        output_str += '\n预约人姓名：' + str(bname_list)
+        for (i, b_s) in enumerate(book_section):
+            output_str += '\n[{}]\t预约时间段：{time_start} - {time_end}\n\t{blank:^4}预约人：{name}'.format(
+                i + 1,
+                blank=' ',
+                **b_s
+            )
         return output_str
     else:
         output_str += '\n今天还没有预约哦'
         return output_str
 
 
-def book_seperator(time_list, name_list):
+def book_separator(time_list, name_list):
     time_list.append('end')
     name_list.append('end')
     last_name = name_list[0]
