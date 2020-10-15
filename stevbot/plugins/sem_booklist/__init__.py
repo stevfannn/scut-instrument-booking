@@ -3,11 +3,16 @@ from nonebot.adapters.cqhttp import Bot, Event
 
 import re
 import calendar
+import datetime
 
 from .utils import get_booklist
 
 YEAR = 2020
-
+DATE_CN = ['今天', '明天', '后天']
+EID_BUILTIN = {
+    '140107电镜': '53c2d66934875f5c01348781996e0482',
+    '励吾楼三楼场发射电镜': '4aa6427333f87dba01340c0c6e880003'
+}
 sem_booklist = on_command('设备时间', priority=5)
 
 
@@ -19,14 +24,12 @@ async def handel_receive_date(bot: Bot, event: Event, state: dict):
         # 设备id参数，没有传入32位id或长度不够则默认14号楼107电镜
         if len(arg_list[0]) == 32:
             state['id'] = arg_list[0]
-        elif len(arg_list[0]) == 4:
+        else:
             result = await process_date(arg_list[0])
             if result:
                 state['mm'], state['dd'] = result
             else:
                 await sem_booklist.reject('日期格式不对或月份日数不正确，请确认是否是mmdd格式（如0809）')
-        else:
-            await help()
         if len(arg_list) > 1:
             result = await process_date(arg_list[1])
             if result:
@@ -37,8 +40,8 @@ async def handel_receive_date(bot: Bot, event: Event, state: dict):
         await help()
 
 
-@sem_booklist.got('mm', prompt='请输入正确的日期')
-@sem_booklist.got('dd', prompt='请输入正确的日期')
+@sem_booklist.got('mm')
+@sem_booklist.got('dd')
 async def handle_date(bot: Bot, event: Event, state: dict):
     eid = state.get('id', '53c2d66934875f5c01348781996e0482')
     mm = state['mm']
@@ -59,8 +62,20 @@ async def help():
 
 async def process_date(strdate: str):
     if len(strdate) == 4:
+        # 判断是否mmdd格式
         month, day = [int(x) for x in re.findall(r'(\d{2})(\d{2})', strdate)[0]]
         if 0 < month <= 12:
             _, max_day = calendar.monthrange(YEAR, month)
             if int(day) <= max_day:
                 return month, day
+    elif len(strdate) == 2:
+        # 判断是否中文日子？
+        try:
+            day_shift = DATE_CN.index(strdate)
+            today = datetime.date.today()
+            day_modified = today + datetime.timedelta(days=day_shift)
+            return day_modified.month, day_modified.day
+        except ValueError:
+            pass
+
+
