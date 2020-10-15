@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "stevbot"
+version = "0.1.0"
+description = "stevbot"
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+nonebot2 = "^2.0.0.a1"
+nb-cli = "^0.1.0"
+lxml = "^4.5.2"
+
+[tool.poetry.dev-dependencies]
+nonebot-test = "^0.1.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
