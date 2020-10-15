@@ -4,6 +4,7 @@ from lxml import etree
 
 URL = 'http://yqgx.7w2.cas.scut.edu.cn:8380/guest/appointmentList!query.action'
 URL_ID = 'http://yqgx.7w2.cas.scut.edu.cn:8380/guest/appointmentDetailList.action'
+URL_DETAIL = 'http://yqgx.7w2.cas.scut.edu.cn:8380/details.jsp'
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                   'Chrome/84.0.4147.105 Safari/537.36 '
@@ -21,6 +22,8 @@ def end_time_shift(t: str) -> str:
 
 
 async def get_booklist(eid: str, mm: str, dd: str):
+    # response = requests.get(url=URL_DETAIL, headers=headers, params=f'equipmentId={eid}')
+    #
     booking_data = {
         'equipmentId': eid,
         'day': dd,
@@ -42,11 +45,11 @@ async def get_booklist(eid: str, mm: str, dd: str):
                 book_time_list.append(td.xpath('./a/text()')[0])
     bname_list = []
     for bid in id_list:
-        response = requests.get(url=URL_ID, headers=headers, params='id={}'.format(bid)).text
+        response = requests.get(url=URL_ID, headers=headers, params=f'id={bid}').text
         tree = etree.HTML(response)
         bname = tree.xpath('//div[@class="area4"]/table/tr[2]/td[3]/text()')[0]
         bname_list.append(bname)
-    output_str = '2020年{}月{}日所查设备的预约情况：'.format(mm, dd)
+    output_str = '2020年{}月{}日{}的预约情况：'.format(mm, dd, eid)
 
     book_section = book_separator(book_time_list, bname_list)
     output_str = output_formattor(output_str, book_section)
