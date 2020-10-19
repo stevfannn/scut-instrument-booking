@@ -15,8 +15,8 @@ M2EID = {
 DICT_PATH = './eid2ename_dict.pkl'
 
 
-async def print_e_name():
-    print_str = ''
+def print_e_name():
+    print_str = '机器人内置的识别码和对应设备名称列表如下：\n'
     try:
         with open(DICT_PATH, 'rb') as fp:
             eid2name = pickle.load(fp)
@@ -24,6 +24,7 @@ async def print_e_name():
         return 'Error: eid2name need a init.'
     for k, v in M2EID.items():
         print_str += '{} - {} (id: {})\n'.format(k, eid2name.get(v), v)
+    return print_str
 
 
 async def get_e_name(eid: str):
